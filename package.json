@@ -1,0 +1,24 @@
+{
+  "name": "hexlet-trees",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kuznevia/hexlet-trees.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kuznevia/hexlet-trees/issues"
+  },
+  "homepage": "https://github.com/kuznevia/hexlet-trees#readme",
+  "dependencies": {
+    "@hexlet/immutable-fs-trees": "^0.7.1",
+    "lodash": "^4.17.21"
+  }
+}
