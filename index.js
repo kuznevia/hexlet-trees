@@ -4,28 +4,38 @@ import {
   mkfile, mkdir, isDirectory, isFile, map, getChildren, getName, getMeta
 } from '@hexlet/immutable-fs-trees';
 
-const originalTree = mkdir('/', [
-  mkfile('one', { owner: 'Vasya' }),
-  mkfile('two', { owner: 'Kolya' }),
-  mkdir('three', [], { owner: 'Kirill' }),
-], { owner: 'Vasya' });
+const tree = mkdir('/', [
+  mkdir('etc', [
+    mkfile('bashrc'),
+    mkfile('consul.cfg'),
+  ]),
+  mkfile('hexletrc'),
+  mkdir('bin', [
+    mkfile('ls'),
+    mkfile('cat'),
+  ]),
+  mkfile('slava'),
+]);
 
-const changeOwner = (tree, newOwner) => {
-  const newName = getName(tree);
-  const newMeta = _.cloneDeep(getMeta(tree));
-  newMeta.owner = newOwner;
+// В реализации используем рекурсивный процесс,
+// чтобы добраться до самого дна дерева.
+const getNodesCount = (tree) => {
   if (isFile(tree)) {
-    return mkfile(newName, newMeta);
+    // Возвращаем 1 для учёта текущего файла
+    return 1;
   }
+
+  // Если узел — директория, получаем его детей
   const children = getChildren(tree);
-  const newChildren = children.map((child) => changeOwner(child, newOwner));
-  const newTree = mkdir(newName, newChildren, newMeta);
-  return newTree;
-}
+  console.log(children);
+  // Самая сложная часть
+  // Считаем количество потомков для каждого из детей,
+  // вызывая рекурсивно нашу функцию getNodesCount
+  const descendantCounts = children.map((child) => getNodesCount(child));
+  console.log(descendantCounts);
+  console.log(1 + _.sum(descendantCounts));
+  // Возвращаем 1 (текущая директория) + общее количество потомков
+  return 1 + _.sum(descendantCounts);
+};
 
-console.log(originalTree.children);
-
-const newTree = changeOwner(originalTree, 'Slava');
-
-console.log(newTree.children);
-console.log(originalTree.children);
+getNodesCount(tree);
