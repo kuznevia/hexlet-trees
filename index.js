@@ -10,37 +10,44 @@ const tree = mkdir('/', [
     mkdir('nginx', [
       mkfile('nginx.conf'),
     ]),
+    mkdir('consul', [
+      mkfile('config.json'),
+      mkdir('data'),
+    ]),
   ]),
-  mkdir('consul', [
-    mkfile('config.json'),
-    mkfile('file.tmp'),
-    mkdir('data'),
-  ]),
+  mkdir('logs'),
   mkfile('hosts'),
-  mkfile('resolve'),
 ]);
 
-const getFilesCount = (node) => {
-  if (isFile(node)) {
-    return 1;
-  }
+const findEmptyDirPaths = (tree, maxDepth = Infinity) => {
+  // Внутренняя функция, которая может передавать аккумулятор
+  // В качестве аккумулятора выступает depth, переменная, содержащая текущую глубину
 
-  const children = getChildren(node);
-  const descendantCounts = children.map(getFilesCount);
-  return _.sum(descendantCounts);
+    const name = getName(tree);
+    const children = getChildren(tree);
+
+    // Если директория пустая, то добавляем ее в список
+    if (children.length === 0) {
+      return name;
+    }
+
+    // Если это второй уровень вложенности, и директория не пустая
+    // то не имеет смысла смотреть дальше
+    if (maxDepth === 2) {
+      // Почему возвращается именно пустой массив?
+      // Потому что снаружи выполняется flat
+      // Он раскрывает пустые массивы
+      return [];
+    }
+
+    // Оставляем только директории
+    const emptydirNames = children.filter(isDirectory)
+      // Не забываем увеличивать глубину
+      .flatMap((child) => findEmptyDirPaths(child, maxDepth + 1));
+
+
+  // Начинаем с глубины 0
+  return emptydirNames
 };
 
-const getSubdirectoriesInfo = (tree) => {
-  const children = getChildren(tree);
-  const result = children
-    // Нас интересуют только директории
-    .filter(isDirectory)
-    // Запускаем подсчёт для каждой директории
-    .map((child) => [getName(child), getFilesCount(child)]);
-
-    console.log(children);
-
-  return result;
-};
-
-console.log(getSubdirectoriesInfo(tree));
+console.log(findEmptyDirPaths(tree, 1)); 
